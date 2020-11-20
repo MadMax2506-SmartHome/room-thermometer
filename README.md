@@ -1,2 +1,2 @@
-# ESP-Room_Thermometer
+# esp - room thermometer
 Ermittelt die Raumtemperatur und sendet dies über MQTT an einen RaspberryPi
