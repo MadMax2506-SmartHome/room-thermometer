@@ -2,7 +2,8 @@
 
 ## Allgemein
 * Gerätename: `room_thermometer`
-
+* benötigt einen externen MQTT-Server (IP-Adresse und Port können im Quellcode angepasst werden)
+* benötigt einen WLan-Zugriff (SSID und Passwort können im Quellcode angepasst werden)
 
 ## Setup
 
