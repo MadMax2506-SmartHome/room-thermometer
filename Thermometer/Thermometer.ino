@@ -43,8 +43,10 @@ struct mqtt {
 
 // sensor
 struct dht {
-  int pin     = 14;
-  int i_delay = 1000;
+  int pin             = 14;
+  int i_delay         = 100;
+  int i_puffer        = 20;
+  int i_current_step  = 0;
 
   SimpleDHT22 sensor;
 } dht;
@@ -56,10 +58,15 @@ void setup() {
 void loop() {
   initNetwork();
 
-  char* pc_sensor_data = get_data_from_sensor_as_json();
+  dht.i_current_step++;
+  if(dht.i_current_step == dht.i_puffer) {
+    dht.i_current_step = 0;
+    
+    char* pc_sensor_data = get_data_from_sensor_as_json();
 
-  if(strcmp("", pc_sensor_data) != 0) {
-   mqtt.p_connection->sendMSG(mqtt.ppc_topicsToPublish[1], pc_sensor_data);
+    if(strcmp("", pc_sensor_data) != 0) {
+     mqtt.p_connection->sendMSG(mqtt.ppc_topicsToPublish[1], pc_sensor_data);
+    }
   }
 
   delay(dht.i_delay);
