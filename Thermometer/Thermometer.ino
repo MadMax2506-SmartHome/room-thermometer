@@ -4,6 +4,14 @@
 
 #include <SimpleDHT.h>
 
+#include <Wire.h>
+#include "SSD1306Ascii.h"
+#include "SSD1306AsciiWire.h"
+
+// I2C Daten fürs Display definieren
+#define I2C_ADDRESS 0x3C
+#define RST_PIN -1
+
 //netwok
 struct wlan {
   int i_maxConnectionTrys = 10;
@@ -45,11 +53,16 @@ struct mqtt {
 struct dht {
   int pin             = 14;
   int i_delay         = 100;
-  int i_puffer        = 20;
-  int i_current_step  = 0;
+  int i_puffer        = 30;
+  int i_current_step  = 30;
 
   SimpleDHT22 sensor;
 } dht;
+
+// display display
+struct display {
+  SSD1306AsciiWire* output;
+} display;
 
 void setup() {
   setupData();
@@ -58,9 +71,8 @@ void setup() {
 void loop() {
   initNetwork();
 
-  dht.i_current_step++;
   if(dht.i_current_step == dht.i_puffer) {
-    dht.i_current_step = 0;
+    dht.i_current_step = 1;
     
     char* pc_sensor_data = get_data_from_sensor_as_json();
 
@@ -69,6 +81,7 @@ void loop() {
     }
   }
 
+  dht.i_current_step++;
   delay(dht.i_delay);
 }
 
@@ -84,6 +97,16 @@ void setupData() {
 
   //mqtt
   mqtt.p_connection = new MQTT_ESP(mqtt.pbyte_ip, mqtt.i_port, wlan.p_espClient, mqtt.i_maxConnectionTrys, mqtt.b_retained);
+
+  // display
+  display.output = new SSD1306AsciiWire();
+  Wire.begin();
+  Wire.setClock(400000L);
+  display.output->begin(&Adafruit128x32, I2C_ADDRESS);
+  
+  display.output->setFont(System5x7);
+  display.output->clear();
+  display.output->setRow( display.output->displayRows() - display.output->fontRows() );
 }
 
 void initNetwork() {
@@ -173,6 +196,8 @@ char* get_data_from_sensor_as_json() {
   int i_current_temperature = (int)temperature;
   int i_current_humidity    = (int)humidity;
 
+  set_sensor_data_on_display(i_current_temperature, i_current_humidity);
+
   //json beginnen
   String str_json = "{";
 
@@ -186,9 +211,20 @@ char* get_data_from_sensor_as_json() {
   str_json+= "}";
   char* pc_json = new char[255];
   str_json.toCharArray(pc_json, 255);
-
-
+  
   return pc_json;
+}
+
+void set_sensor_data_on_display(int i_current_temperature, int i_current_humidity) {
+  display.output->clear();
+  
+  display.output->print("\nTemperatur: ");
+  display.output->print(i_current_temperature);
+  display.output->print(" Grad\n\n");
+
+  display.output->print("Feuchtigkeit: ");
+  display.output->print(i_current_humidity);
+  display.output->print("%");
 }
 
 char* getDeviceInfoAsJSON() {

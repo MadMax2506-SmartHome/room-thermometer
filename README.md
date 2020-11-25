@@ -35,6 +35,7 @@
 	        <li>ArduinoOTA (by Arduino, Juraj Andrassy) -> <b>zu suchen: "ota"</b></li>
 	        <li>SimpleDHT (by Winlin) -> <b>zu suchen: "simple dht"</b></li>
 	        <li>PubSublient (by Nick O'Leary) -> <b>zu suchen: "pubsub client"</b></li>
+          <li>SSD1306Ascii (by Bill Greiman) -> <b>zu suchen: "SSD1306Ascii"</b></li>
 		    </ul>
     </li>
 </ol>
